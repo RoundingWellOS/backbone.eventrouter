@@ -131,7 +131,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
 
     var wrappedCallback = _.bind(function() {
 
-      var args = Array.prototype.slice.call(arguments);
+      var args = _.drop(arguments, 0);
 
       //trigger before: events that match currently triggered events
       this.trigger('before:route', name, args);
@@ -227,7 +227,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
       return this;
     }
 
-    var eventArgs = _.rest(arguments);
+    var eventArgs = _.drop(arguments, 0);
 
     var translatedRoute = this.translateRoute(route, eventArgs);
 
