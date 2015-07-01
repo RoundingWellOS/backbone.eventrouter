@@ -1,0 +1,40 @@
+{
+  "name": "backbone.eventrouter",
+  "version": "0.1.0",
+  "description": "A highly opinionated, simplistic Backbone.Router coupled with a Backbone.Radio.Channel",
+  "main": "./dist/backbone.eventrouter.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RoundingWellOS/backbone.eventrouter.git"
+  },
+  "keywords": [
+    "backbone",
+    "backbonejs",
+    "Backbone.Radio",
+    "Router",
+    "Backbone.Router",
+    "Pub/sub",
+    "router"
+  ],
+  "author": "Paul Falgout <paul@otterball.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RoundingWellOS/backbone.eventrouter/issues"
+  },
+  "homepage": "https://github.com/RoundingWellOS/backbone.eventrouter",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "backbone": "^1.1.1",
+    "backbone.radio": "^1.0.0",
+    "underscore": "^1.5.0"
+  },
+  "authors": [
+    "paulfalgout <paul@otterball.com>"
+  ]
+}
