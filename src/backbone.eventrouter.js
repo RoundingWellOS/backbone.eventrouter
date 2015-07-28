@@ -64,7 +64,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
   _initRoutes: function() {
     this._routeTriggers = _.result(this, 'routeTriggers') || {};
 
-    _.each(this._routeTriggers, this._addTriggerRoute, this);
+    _.each(this._routeTriggers, this._addRouteTrigger, this);
   },
 
   /**
@@ -72,12 +72,12 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * the appropriate event
    *
    * @private
-   * @method _addTriggerRoute
+   * @method _addRouteTrigger
    * @param {Array|String} routes - Route string or array of route strings
    * @param {String} event - Event string to trigger on route
    * @memberOf EventRouter
    */
-  _addTriggerRoute: function(routes, event){
+  _addRouteTrigger: function(routes, event){
     // handle any route as an array by default for the _.each
     routes = _.isArray(routes) ? routes : [routes];
 
@@ -87,19 +87,19 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
   },
 
   /**
-   * Adds a routerTrigger, and route(s) to Backbone.Router
+   * Adds a routeTrigger, and route(s) to Backbone.Router
    * which on route triggers the appropriate event.
    *
    * @public
-   * @method addTriggerRoute
+   * @method addRouteTrigger
    * @param {Array|String} routes - Route string or array of route strings
    * @param {String} event - Event string to trigger on route
    * @memberOf EventRouter
    * @returns {EventRouter}
    */
-  addTriggerRoute: function(routes, event){
+  addRouteTrigger: function(routes, event){
     this._routeTriggers[event] = routes;
-    this._addTriggerRoute(routes, event);
+    this._addRouteTrigger(routes, event);
 
     return this;
   },
