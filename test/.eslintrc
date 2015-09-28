@@ -13,7 +13,9 @@
   },
   "globals": {
     "spy": true,
-    "expect": true
+    "expect": true,
+    "_": true,
+    "Backbone": true
   }
 }
 

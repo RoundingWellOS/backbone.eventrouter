@@ -126,7 +126,7 @@ gulp.task('browserify', function() {
 
 function test() {
   return gulp.src(['test/setup/node.js', 'test/unit/**/*.js'], {read: false})
-    .pipe($.mocha({reporter: 'dot', globals: config.mochaGlobals}));
+    .pipe($.mocha({ globals: config.mochaGlobals}));
 }
 
 gulp.task('coverage', ['lint-src', 'lint-test'], function(done) {
