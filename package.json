@@ -1,8 +1,9 @@
 {
   "name": "backbone.eventrouter",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A highly opinionated, simplistic Backbone.Router coupled with a Backbone.Radio.Channel",
   "main": "./dist/backbone.eventrouter.js",
+  "engine": "node >= 4.0.0",
   "scripts": {
     "test": "gulp",
     "test-browser": "gulp test-browser",
