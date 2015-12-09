@@ -11,8 +11,9 @@ the process of getting the changes merged in and released.
 git clone git@github.com:RoundingWellOS/backbone.eventrouter.git && cd backbone.eventrouter
 ```
 
-Make sure [Node.js](http://nodejs.org/) and [npm](https://www.npmjs.org/) are
+Make sure [Node.js](http://nodejs.org/) v4+ and [npm](https://www.npmjs.org/) are
 [installed](http://nodejs.org/download/).
+If you need multiple node version installs try [nvm](https://www.npmjs.com/package/nvm).
 
 ```
 $ npm install
