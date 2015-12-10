@@ -13,7 +13,7 @@ git clone git@github.com:RoundingWellOS/backbone.eventrouter.git && cd backbone.
 
 Make sure [Node.js](http://nodejs.org/) v4+ and [npm](https://www.npmjs.org/) are
 [installed](http://nodejs.org/download/).
-If you need multiple node version installs try [nvm](https://www.npmjs.com/package/nvm).
+If you need multiple node version installs try [nvm](https://github.com/creationix/nvm#install-script).
 
 ```
 $ npm install
