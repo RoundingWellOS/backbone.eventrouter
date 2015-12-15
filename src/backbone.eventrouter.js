@@ -227,7 +227,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
       return this;
     }
 
-    var eventArgs = _.drop(arguments, 0);
+    var eventArgs = _.drop(arguments, 1);
 
     var translatedRoute = this.translateRoute(route, eventArgs);
 
