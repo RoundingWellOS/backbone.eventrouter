@@ -229,7 +229,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
 
     var eventArgs = _.drop(arguments, 1);
 
-    var translatedRoute = this.translateRoute(route, eventArgs);
+    var translatedRoute = EventRouter.translateRoute(route, eventArgs);
 
     // update URL without triggering the route
     return this.navigate(translatedRoute, { trigger: false });
@@ -248,8 +248,10 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
     var routes = this._routeTriggers[event];
 
     return _.isArray(routes) ? routes[0] : routes;
-  },
-
+  }
+},
+// Static properties
+{
   /**
    * Finds the next name params (ie: :param) and replaces it with the arg
    *
@@ -271,7 +273,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * Takes a route string and an array or arguments
    * and returns a url with the named params replaced with the argument values
    *
-   * @public
+   * @static
    * @method translateRoute
    * @param {String} route - Route string
    * @param {Array} eventArgs - Passed event arguments
@@ -279,7 +281,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @returns {String}
    */
   translateRoute: function(route, eventArgs) {
-    return _.reduce(eventArgs, this._replaceParam, route);
+    return _.reduce(eventArgs, EventRouter._replaceParam, route);
   }
 });
 

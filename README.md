@@ -201,12 +201,13 @@ myEventRouter.navigateFromEvent('some:event', 'foo');
 ```
 
 ### `translateRoute`
+This is a static method available on the class definition.
 Takes a route string and an array of arguments
 and returns a url with the named params replaced with the argument values.
 
 ```js
 // will return 'some/url/foo/22'
-myEventRouter.translateRoute('some/url/:param/:id', ['foo', 22]);
+Backbone.EventRouter.translateRoute('some/url/:param/:id', ['foo', 22]);
 ```
 
 ## Getting Help

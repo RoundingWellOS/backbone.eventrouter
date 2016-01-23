@@ -154,7 +154,7 @@ describe('Backbone.Eventrouter', function() {
     });
 
     it('should return a url with the named params replaced with the argument values', function(){
-      var translatedRoute = this.myEventRouter.translateRoute('some/url/:param/:id', ['foo', 22]);
+      var translatedRoute = Backbone.EventRouter.translateRoute('some/url/:param/:id', ['foo', 22]);
       expect(translatedRoute).to.eql('some/url/foo/22');
     });
   });
