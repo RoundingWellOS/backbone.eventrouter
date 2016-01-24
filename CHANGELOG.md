@@ -1,6 +1,13 @@
+#### v0.2.0
+
+* Test Coverage 100%
+* **BREAKING:** Moved `translateRoute` to a static method on `Backbone.EventRouter`
+* Fixed the arguments passed to `noMatch` event
+* Fixed the event name being passed on navigate (Thanks **@Courey**!)
+
 #### v0.1.1
 
-* Renamed `addTriggerRoute` to `addRouteTrigger`
+* **BREAKING:** Renamed `addTriggerRoute` to `addRouteTrigger`
 * Update to Node v4
 
 #### v0.1.0

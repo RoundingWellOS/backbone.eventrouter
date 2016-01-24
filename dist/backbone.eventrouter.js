@@ -1,6 +1,6 @@
 /**
  * backbone.eventrouter - A highly opinionated, simplistic Backbone.Router coupled with a Backbone.Radio.Channel
- * @version v0.1.1
+ * @version v0.2.0
  * @link https://github.com/RoundingWellOS/backbone.eventrouter
  * @license MIT
  */
@@ -217,7 +217,8 @@
 
       // if no matching route exists do nothing
       if (!route) {
-        this.trigger.apply(this, ['noMatch'].concat(arguments));
+        var args = _.drop(arguments, 0);
+        this.trigger.apply(this, ['noMatch'].concat(args));
         return this;
       }
 
@@ -225,7 +226,7 @@
         return this;
       }
 
-      var eventArgs = _.drop(arguments, 0);
+      var eventArgs = _.drop(arguments, 1);
 
       var translatedRoute = this.translateRoute(route, eventArgs);
 
