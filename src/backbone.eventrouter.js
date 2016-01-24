@@ -219,7 +219,8 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
 
     // if no matching route exists do nothing
     if(!route) {
-      this.trigger.apply(this, ['noMatch'].concat(arguments));
+      var args = _.drop(arguments, 0);
+      this.trigger.apply(this, ['noMatch'].concat(args));
       return this;
     }
 
