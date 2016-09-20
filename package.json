@@ -33,6 +33,8 @@
     "babel-core": "^5.2.17",
     "babel-eslint": "^3.1.9",
     "babelify": "^6.0.0",
+    "backbone": "^1.1.1",
+    "backbone.radio": "^1.0.0",
     "browserify": "^8.1.1",
     "chai": "^2.0.0",
     "del": "^1.1.1",
@@ -62,6 +64,7 @@
     "run-sequence": "^1.0.2",
     "sinon": "^1.12.2",
     "sinon-chai": "^2.7.0",
+    "underscore": "^1.5.0",
     "vinyl-source-stream": "^1.0.0"
   },
   "babelBoilerplateOptions": {
@@ -76,7 +79,7 @@
       "Radio"
     ]
   },
-  "dependencies": {
+  "peerDependencies": {
     "backbone": "^1.1.1",
     "backbone.radio": "^1.0.0",
     "underscore": "^1.5.0"
