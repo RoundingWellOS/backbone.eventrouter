@@ -19,8 +19,8 @@ describe('Backbone.Eventrouter', function() {
         ));
         // In IE, anchor.pathname does not contain a leading slash though
         // window.location.pathname does.
-        if (!/^\//.test(this.pathname)){
-          this.pathname = '/' + this.pathname;
+        if(!/^\//.test(this.pathname)) {
+          this.pathname = `/${ this.pathname }`;
         }
       },
       toString: function() {
@@ -36,8 +36,10 @@ describe('Backbone.Eventrouter', function() {
   describe('when defining a channel name', function() {
     describe('on the definition', function() {
       it('should set the channel', function() {
-        var MyEventRouter = Backbone.EventRouter.extend({
-          channelName: function(){ return 'foo'; }
+        const MyEventRouter = Backbone.EventRouter.extend({
+          channelName: function() {
+            return 'foo';
+          }
         });
 
         this.myEventRouter = new MyEventRouter();
@@ -155,7 +157,6 @@ describe('Backbone.Eventrouter', function() {
       it('should create the route with name as an empty string', function() {
         expect(this.callbackStub).to.have.been.calledWith('foo');
       });
-
     });
 
     describe('when not passing a callback', function() {

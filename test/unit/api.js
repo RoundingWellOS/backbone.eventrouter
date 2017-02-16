@@ -19,8 +19,8 @@ describe('Backbone.Eventrouter API', function() {
                              ));
         // In IE, anchor.pathname does not contain a leading slash though
         // window.location.pathname does.
-        if (!/^\//.test(this.pathname)){
-          this.pathname = '/' + this.pathname;
+        if(!/^\//.test(this.pathname)) {
+          this.pathname = `/${ this.pathname }`;
         }
       },
       toString: function() {
@@ -35,7 +35,7 @@ describe('Backbone.Eventrouter API', function() {
 
   describe('when #getChannel', function() {
     beforeEach(function() {
-      var router = new Backbone.EventRouter({
+      const router = new Backbone.EventRouter({
         channelName: 'my-event-channel'
       });
 
@@ -63,35 +63,35 @@ describe('Backbone.Eventrouter API', function() {
 
     describe('when defining a route trigger', function() {
       beforeEach(function() {
-        var routerChannel = this.myEventRouter.getChannel();
+        const routerChannel = this.myEventRouter.getChannel();
         routerChannel.on('testevent:bar', this.fooStub);
         this.myEventRouter.addRouteTrigger('test/url/:foo', 'testevent:bar');
         this.myEventRouter.navigate('test/url/baz', { trigger: true });
       });
 
-      it('should trigger the appropriate event', function(){
+      it('should trigger the appropriate event', function() {
         expect(this.fooStub).to.have.been.calledOnce;
       });
 
-      it('should pass the correct arguments', function(){
+      it('should pass the correct arguments', function() {
         expect(this.fooStub).to.have.been.calledWith('baz');
       });
     });
 
     describe('when defining a route trigger with an array of routes', function() {
       beforeEach(function() {
-        var routerChannel = this.myEventRouter.getChannel();
+        const routerChannel = this.myEventRouter.getChannel();
         routerChannel.on('testevent:bar', this.fooStub);
         this.myEventRouter.addRouteTrigger(['test/url/:foo', 'thing/that/isdifferent'], 'testevent:bar');
         this.myEventRouter.navigate('test/url/baz', { trigger: true });
         this.myEventRouter.navigate('thing/that/isdifferent', { trigger: true });
       });
 
-      it('should trigger the appropriate event in the array', function(){
+      it('should trigger the appropriate event in the array', function() {
         expect(this.fooStub).to.have.been.calledTwice;
       });
 
-      it('should pass the correct arguments', function(){
+      it('should pass the correct arguments', function() {
         expect(this.fooStub).to.have.been.calledWith('baz');
         expect(this.fooStub).to.have.been.calledWith();
       });
@@ -103,20 +103,20 @@ describe('Backbone.Eventrouter API', function() {
       this.myEventRouter = new Backbone.EventRouter();
     });
 
-    it('should have a default route as first route in an array of routes', function(){
+    it('should have a default route as first route in an array of routes', function() {
       this.myEventRouter.addRouteTrigger(['some/url/:original', 'some/url', 'another/thing/:id'], 'some:event');
 
       expect(this.myEventRouter.getDefaultRoute('some:event')).to.eql('some/url/:original');
     });
 
-    it('should be called with passed-in event', function(){
+    it('should be called with passed-in event', function() {
       this.myEventRouter.addRouteTrigger('other/:param', 'other:thing');
 
       expect(this.myEventRouter.getDefaultRoute('other:thing')).to.eql('other/:param');
     });
   });
 
-  describe('when #navigateFromEvent', function(){
+  describe('when #navigateFromEvent', function() {
     beforeEach(function() {
       this.myEventRouter = new Backbone.EventRouter({
         routeTriggers: {
@@ -129,12 +129,11 @@ describe('Backbone.Eventrouter API', function() {
       Backbone.history.start();
     });
 
-    it('should translate event to URL', function(){
+    it('should translate event to URL', function() {
       this.myEventRouter.navigateFromEvent('bar:event', 'foo');
 
       expect(Backbone.history.location.hash).to.equal('#some/url/foo');
     });
-
   });
 
   describe('when #translatedRoute', function() {
@@ -142,10 +141,9 @@ describe('Backbone.Eventrouter API', function() {
       this.myEventRouter = new Backbone.EventRouter();
     });
 
-    it('should return a url with the named params replaced with the argument values', function(){
-      var translatedRoute = this.myEventRouter.translateRoute('some/url/:param/:id', ['foo', 22]);
+    it('should return a url with the named params replaced with the argument values', function() {
+      const translatedRoute = this.myEventRouter.translateRoute('some/url/:param/:id', ['foo', 22]);
       expect(translatedRoute).to.eql('some/url/foo/22');
     });
   });
-
 });
