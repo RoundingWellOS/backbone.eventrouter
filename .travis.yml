@@ -1,7 +1,10 @@
 language: node_js
 node_js:
-  - "stable"
+  - "6"
 sudo: false
+cache:
+  directories:
+    - node_modules
 script: "gulp coverage"
 after_success:
   - npm install -g codeclimate-test-reporter

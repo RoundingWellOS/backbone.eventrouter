@@ -1,0 +1,9 @@
+{
+  "globals": {
+    "spy": true,
+    "stub": true,
+    "expect": true,
+    "_": true,
+    "Backbone": true
+  }
+}

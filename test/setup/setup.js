@@ -1,21 +1,21 @@
 module.exports = function() {
-  var _ = require('underscore');
-  var Backbone = require('backbone');
-  var $ = require('jquery');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
+  const $ = require('jquery');
   Backbone.$ = $;
   require('backbone.radio');
   require('../../src/backbone.eventrouter');
 
   // Set up test div
-  var $testDiv = $('#testDiv');
+  const $testDiv = $('#testDiv');
 
-  var setFixtures = function() {
+  const setFixtures = function() {
     _.each(arguments, function(content) {
       $testDiv.append(content);
     });
   };
 
-  var clearFixtures = function() {
+  const clearFixtures = function() {
     $testDiv.empty();
   };
 

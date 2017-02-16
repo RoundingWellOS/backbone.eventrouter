@@ -19,8 +19,8 @@ describe('Backbone.Eventrouter Events', function() {
                              ));
         // In IE, anchor.pathname does not contain a leading slash though
         // window.location.pathname does.
-        if (!/^\//.test(this.pathname)){
-          this.pathname = '/' + this.pathname;
+        if(!/^\//.test(this.pathname)) {
+          this.pathname = `/${ this.pathname }`;
         }
       },
       toString: function() {
@@ -55,12 +55,12 @@ describe('Backbone.Eventrouter Events', function() {
         this.myEventRouter.navigate('test/url/baz', { trigger: true });
       });
 
-      it('should throw a before:route event to match the route event', function(){
+      it('should throw a before:route event to match the route event', function() {
         expect(this.beforeRouteStub).to.have.been.calledOnce;
         expect(this.beforeRouteStub.args).to.deep.equal(this.routeStub.args);
       });
 
-      it('should throw a before:route:[name] event to match the route:[name] event', function(){
+      it('should throw a before:route:[name] event to match the route:[name] event', function() {
         expect(this.beforeRouteNameStub).to.have.been.calledOnce;
         expect(this.beforeRouteNameStub.args).to.deep.equal(this.routeNameStub.args);
       });
@@ -73,7 +73,7 @@ describe('Backbone.Eventrouter Events', function() {
         this.myEventRouter.navigate('test/url/baz', { trigger: true });
       });
 
-      it('should throw a noMatch event', function(){
+      it('should throw a noMatch event', function() {
         expect(this.noMatchStub).to.have.been.calledOnce;
       });
 
@@ -100,11 +100,11 @@ describe('Backbone.Eventrouter Events', function() {
         this.routerChannel.trigger('testevent:bar', 'baz');
       });
 
-      it('should not throw a before:route event', function(){
+      it('should not throw a before:route event', function() {
         expect(this.beforeRouteStub).to.not.have.been.called;
       });
 
-      it('should not throw a before:route:[name] event', function(){
+      it('should not throw a before:route:[name] event', function() {
         expect(this.beforeRouteNameStub).to.not.have.been.called;
       });
     });
@@ -116,7 +116,7 @@ describe('Backbone.Eventrouter Events', function() {
         this.routerChannel.trigger('testevent:bar', 'baz');
       });
 
-      it('should throw a noMatch event', function(){
+      it('should throw a noMatch event', function() {
         expect(this.noMatchStub).to.have.been.calledOnce;
       });
 
