@@ -1,21 +1,6 @@
 {
-  "parser": "babel-eslint",
-  "rules": {
-    "strict": 0,
-    "quotes": [2, "single"],
-    "no-unused-expressions": false,
-    "no-underscore-dangle": false
-  },
+  "extends": ["../.eslintrc", "./.globals.json"],
   "env": {
-    "browser": true,
-    "node": true,
     "mocha": true
-  },
-  "globals": {
-    "spy": true,
-    "expect": true,
-    "_": true,
-    "Backbone": true
   }
 }
-

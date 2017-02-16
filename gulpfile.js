@@ -1,20 +1,18 @@
 const gulp = require('gulp');
 const $ = require('gulp-load-plugins')();
-const fs = require('fs');
 const del = require('del');
-const glob = require('glob');
 const path = require('path');
-const mkdirp = require('mkdirp');
-const babelify = require('babelify');
-const isparta = require('isparta');
-const esperanto = require('esperanto');
-const browserify = require('browserify');
-const runSequence = require('run-sequence');
-const source = require('vinyl-source-stream');
-const _ = require('underscore');
+const rollup = require('rollup').rollup;
+const multiEntry = require('rollup-plugin-multi-entry');
+const nodeResolve = require('rollup-plugin-node-resolve');
+const commonjs = require('rollup-plugin-commonjs');
+const babel = require('rollup-plugin-babel');
+const json = require('rollup-plugin-json');
+const preset = require('babel-preset-es2015-rollup');
 
 const manifest = require('./package.json');
 const config = manifest.babelBoilerplateOptions;
+const mochaGlobals = require('./test/.globals.json').globals;
 const mainFile = manifest.main;
 const destinationFolder = path.dirname(mainFile);
 const exportFileName = path.basename(mainFile, path.extname(mainFile));
@@ -29,142 +27,164 @@ gulp.task('clean-tmp', function(cb) {
   del(['tmp'], cb);
 });
 
-// Send a notification when JSRC fails,
-// so that you know your changes didn't build
-function jscsNotify(file) {
-  if (!file.jscs) { return; }
-  return file.jscs.success ? false : 'JSRC failed';
-}
+const onError = $.notify.onError('Error: <%= error.message %>');
 
-function createLintTask(taskName, files) {
-  gulp.task(taskName, function() {
-    return gulp.src(files)
-      .pipe($.plumber())
-      .pipe($.eslint())
-      .pipe($.eslint.format())
-      .pipe($.eslint.failOnError())
-      .pipe($.jscs())
-      .pipe($.notify(jscsNotify));
-  });
+function lint(files) {
+  return gulp.src(files)
+    .pipe($.plumber(onError))
+    .pipe($.eslint())
+    .pipe($.eslint.format())
+    .pipe($.eslint.failOnError());
 }
 
 // Lint our source code
-createLintTask('lint-src', ['src/**/*.js']);
+gulp.task('lint-src', function() {
+  return lint(['src/**/*.js']);
+});
 
 // Lint our test code
-createLintTask('lint-test', ['test/**/*.js']);
+gulp.task('lint-test', function() {
+  return lint(['test/**/*.js']);
+});
 
 function getBanner() {
-  var banner = ['/**',
-    ' * <%= name %> - <%= description %>',
-    ' * @version v<%= version %>',
-    ' * @link <%= homepage %>',
-    ' * @license <%= license %>',
-    ' */',
-    ''].join('\n');
+  const banner = ['/**',
+                  ` * ${ manifest.name } - ${ manifest.description }`,
+                  ` * @version v${ manifest.version }`,
+                  ` * @link ${ manifest.homepage }`,
+                  ` * @license ${ manifest.license }`,
+                  ' */',
+                  ''].join('\n');
 
-  return _.template(banner)(manifest);
+  return banner;
 }
 
-// Build two versions of the library
-gulp.task('build', ['lint-src', 'clean'], function(done) {
-  esperanto.bundle({
-    base: 'src',
-    entry: config.entryFileName,
+function _generate(bundle, expVarName) {
+  const intro = getBanner();
+
+  return bundle.generate({
+    format: 'umd',
+    moduleName: expVarName,
+    sourceMap: true,
+    banner: intro,
+    globals: {
+      'backbone': 'Backbone',
+      'underscore': '_',
+      'backbone.radio': 'Radio'
+    }
+  });
+}
+
+function bundleCode(entryFileName, expVarName) {
+  return rollup({
+    entry: `src/${ entryFileName }.js`,
+    external: ['underscore', 'backbone', 'backbone.radio'],
+    plugins: [
+      babel({
+        sourceMaps: true,
+        presets: [preset],
+        babelrc: false
+      })
+    ]
   }).then(function(bundle) {
-    var banner = getBanner();
+    return _generate(bundle, expVarName);
+  }).then(gen => {
+    gen.code += `\n//# sourceMappingURL=${ gen.map.toUrl() }`;
+    return gen;
+  });
+}
 
-    var res = bundle.toUmd({
-      banner: banner,
-      sourceMap: true,
-      sourceMapSource: config.entryFileName + '.js',
-      sourceMapFile: exportFileName + '.js',
-      name: config.exportVarName
-    });
+function _buildLib(entryFileName, destFolder, expFileName, expVarName) {
+  return bundleCode(entryFileName, expVarName).then(function(gen) {
+    gen.code = gen.code.replace('<%VERSION%>', manifest.version);
 
-    // Write the generated sourcemap
-    mkdirp.sync(destinationFolder);
-    fs.writeFileSync(path.join(destinationFolder, exportFileName + '.js'), res.map.toString());
-
-    $.file(exportFileName + '.js', res.code, { src: true })
+    return $.file(`${ expFileName }.js`, gen.code, { src: true })
       .pipe($.plumber())
       .pipe($.sourcemaps.init({ loadMaps: true }))
-      .pipe($.babel({ blacklist: ['useStrict'] }))
-      .pipe($.sourcemaps.write('./', {addComment: false}))
-      .pipe(gulp.dest(destinationFolder))
-      .pipe($.filter(['*', '!**/*.js.map']))
-      .pipe($.rename(exportFileName + '.min.js'))
-      .pipe($.sourcemaps.init({ loadMaps: true }))
-      .pipe($.uglify())
       .pipe($.sourcemaps.write('./'))
-      .pipe($.header(banner))
-      .pipe(gulp.dest(destinationFolder))
-      .on('end', done);
-  })
-  .catch(done);
+      .pipe(gulp.dest(destFolder))
+      .pipe($.filter(['*', '!**/*.js.map']))
+      .pipe($.rename(`${ expFileName }.min.js`))
+      .pipe($.sourcemaps.init({ loadMaps: true }))
+      .pipe($.uglify({
+        preserveComments: 'license'
+      }))
+      .pipe($.sourcemaps.write('./'))
+      .pipe(gulp.dest(destFolder));
+  });
+}
+
+gulp.task('build-lib', ['lint-src', 'clean'], function() {
+  return _buildLib(config.entryFileName, destinationFolder, exportFileName, config.exportVarName);
 });
 
-// Bundle our app for our unit tests
-gulp.task('browserify', function() {
-  var testFiles = glob.sync('./test/unit/**/*');
-  var allFiles = ['./test/setup/browserify.js'].concat(testFiles);
-  var bundler = browserify(allFiles);
-  bundler.transform(babelify.configure({
-    sourceMapRelative: __dirname + '/src',
-    blacklist: ['useStrict']
-  }));
-  return bundler.bundle()
-    .on('error', function(err){
-      console.log(err.message);
-      this.emit('end');
-    })
-    .pipe($.plumber())
-    .pipe(source('./tmp/__spec-build.js'))
-    .pipe(gulp.dest(''))
-    .pipe($.livereload());
-});
+function bundleTest() {
+  return rollup({
+    entry: ['./test/setup/browser.js', './test/unit/**/*.js'],
+    plugins: [
+      multiEntry.default(),
+      nodeResolve({ main: true }),
+      commonjs(),
+      json(),
+      babel({
+        sourceMaps: true,
+        presets: [preset],
+        babelrc: false,
+        exclude: 'node_modules/**'
+      })
+    ]
+  }).then(function(bundle) {
+    return bundle.write({
+      format: 'iife',
+      sourceMap: true,
+      moduleName: 'Tests',
+      dest: './tmp/__spec-build.js'
+    });
+  }).then($.livereload.changed('./tmp/__spec-build.js'));
+}
 
-function test() {
-  return gulp.src(['test/setup/node.js', 'test/unit/**/*.js'], {read: false})
-    .pipe($.mocha({ globals: config.mochaGlobals}));
+function browserWatch() {
+  $.livereload.listen({ port: 35729, host: 'localhost', start: true });
+  gulp.watch(['src/**/*.js', 'test/**/*.js'], ['browser-bundle']);
+}
+
+function _registerBabel() {
+  require('babel-register');
 }
 
 gulp.task('coverage', ['lint-src', 'lint-test'], function(done) {
-  require('babel/register');
+  _registerBabel();
   gulp.src(['src/**/*.js'])
-    .pipe($.istanbul({ instrumenter: isparta.Instrumenter }))
-    .pipe($.istanbul.hookRequire())
+    .pipe($.babelIstanbul())
+    .pipe($.babelIstanbul.hookRequire())
     .on('finish', function() {
       return test()
-      .pipe($.istanbul.writeReports())
-      .on('end', done);
+        .pipe($.babelIstanbul.writeReports())
+        .on('end', done);
     });
 });
 
+function test() {
+  return gulp.src(['test/setup/node.js', 'test/unit/**/*.js'], { read: false })
+    .pipe($.mocha({ reporter: 'dot', globals: mochaGlobals }));
+}
+
 // Lint and run our tests
 gulp.task('test', ['lint-src', 'lint-test'], function() {
-  require('babel/register');
+  _registerBabel();
   return test();
 });
 
-// Ensure that linting occurs before browserify runs. This prevents
-// the build from breaking due to poorly formatted code.
-gulp.task('build-in-sequence', function(callback) {
-  runSequence(['lint-src', 'lint-test'], 'browserify', callback);
-});
-
-const watchFiles = ['src/**/*', 'test/**/*', 'package.json', '**/.eslintrc', '.jscsrc'];
-
 // Run the headless unit tests as you make changes.
 gulp.task('watch', function() {
-  gulp.watch(watchFiles, ['test']);
+  gulp.watch(['src/**/*', 'test/**/*', '.jshintrc', 'test/.jshintrc'], ['test']);
 });
 
-// Set up a livereload environment for our spec runner
-gulp.task('test-browser', ['build-in-sequence'], function() {
-  $.livereload.listen({port: 35729, host: 'localhost', start: true});
-  return gulp.watch(watchFiles, ['build-in-sequence']);
-});
+gulp.task('browser-bundle', ['lint-src', 'lint-test'], bundleTest);
+
+gulp.task('test-browser', ['browser-bundle'], browserWatch);
+
+gulp.task('build', ['build-lib']);
 
 // An alias of test
 gulp.task('default', ['test']);

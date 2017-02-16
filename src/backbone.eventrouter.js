@@ -9,7 +9,7 @@ import Radio from 'backbone.radio'; // eslint-disable-line
  * @class EventRouter
  * @memberOf Backbone
  */
-var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
+const EventRouter = Backbone.EventRouter = Backbone.Router.extend({
 
   /**
    * @public
@@ -77,7 +77,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @param {String} event - Event string to trigger on route
    * @memberOf EventRouter
    */
-  _addRouteTrigger: function(routes, event){
+  _addRouteTrigger: function(routes, event) {
     // handle any route as an array by default for the _.each
     routes = _.isArray(routes) ? routes : [routes];
 
@@ -97,7 +97,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @memberOf EventRouter
    * @returns {EventRouter}
    */
-  addRouteTrigger: function(routes, event){
+  addRouteTrigger: function(routes, event) {
     this._routeTriggers[event] = routes;
     this._addRouteTrigger(routes, event);
 
@@ -121,26 +121,24 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @returns {EventRouter}
    */
   route: function(route, name, callback) {
-    if (_.isFunction(name)) {
+    if(_.isFunction(name)) {
       callback = name;
       name = '';
     }
-    if (!callback) {
+    if(!callback) {
       callback = this[name];
     }
 
-    var wrappedCallback = _.bind(function() {
+    const wrappedCallback = _.bind(function() {
+      const args = _.drop(arguments, 0);
 
-      var args = _.drop(arguments, 0);
-
-      //trigger before: events that match currently triggered events
+      // Trigger before: events that match currently triggered events
       this.trigger('before:route', name, args);
-      this.trigger.apply(this, ['before:route:' + name].concat(args));
+      this.trigger.apply(this, [`before:route:${ name }`].concat(args));
 
       this._storeRouteTrigger([name].concat(args));
       callback.apply(this, args);
       this._clearRouteTrigger();
-
     }, this);
 
     return Backbone.Router.prototype.route.call(this, route, name, wrappedCallback);
@@ -154,7 +152,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @param {Array} args - Array of route name and route arguments
    * @memberOf EventRouter
    */
-  _storeRouteTrigger: function(args){
+  _storeRouteTrigger: function(args) {
     this._routeArgs = this._routeArgs || [];
     this._routeArgs.push(args);
   },
@@ -168,7 +166,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @memberOf EventRouter
    * @returns {Array}
    */
-  _getCurrentRouteTrigger: function(){
+  _getCurrentRouteTrigger: function() {
     return _.last(this._routeArgs) || [];
   },
 
@@ -179,7 +177,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @method _clearRouteTrigger
    * @memberOf EventRouter
    */
-  _clearRouteTrigger: function(){
+  _clearRouteTrigger: function() {
     this._routeArgs.pop();
   },
 
@@ -192,10 +190,10 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @memberOf EventRouter
    * @returns {Boolean}
    */
-  _isTriggeredFromRoute: function(){
-    var currentRoute = this._getCurrentRouteTrigger();
+  _isTriggeredFromRoute: function() {
+    const currentRoute = this._getCurrentRouteTrigger();
 
-    if(arguments.length !== currentRoute.length){
+    if(arguments.length !== currentRoute.length) {
       return false;
     }
 
@@ -215,11 +213,11 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @returns {EventRouter}
    */
   navigateFromEvent: function(event) {
-    var route = this.getDefaultRoute(event);
+    const route = this.getDefaultRoute(event);
 
     // if no matching route exists do nothing
     if(!route) {
-      var args = _.drop(arguments, 0);
+      const args = _.drop(arguments, 0);
       this.trigger.apply(this, ['noMatch'].concat(args));
       return this;
     }
@@ -228,9 +226,9 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
       return this;
     }
 
-    var eventArgs = _.drop(arguments, 1);
+    const eventArgs = _.drop(arguments, 1);
 
-    var translatedRoute = this.translateRoute(route, eventArgs);
+    const translatedRoute = this.translateRoute(route, eventArgs);
 
     // update URL without triggering the route
     return this.navigate(translatedRoute, { trigger: false });
@@ -246,7 +244,7 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @returns {String}
    */
   getDefaultRoute: function(event) {
-    var routes = this._routeTriggers[event];
+    const routes = this._routeTriggers[event];
 
     return _.isArray(routes) ? routes[0] : routes;
   },
@@ -261,9 +259,9 @@ var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @memberOf EventRouter
    * @returns {String}
    */
-  _replaceParam: function(route, arg){
+  _replaceParam: function(route, arg) {
     // https://github.com/jashkenas/backbone/blob/1.2.1/backbone.js#L1425
-    var namedParam = /(\(\?)?:\w+/;
+    const namedParam = /(\(\?)?:\w+/;
 
     return route.replace(namedParam, arg);
   },
