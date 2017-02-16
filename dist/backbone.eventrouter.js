@@ -1,14 +1,28 @@
 /**
  * backbone.eventrouter - A highly opinionated, simplistic Backbone.Router coupled with a Backbone.Radio.Channel
- * @version v0.2.0
+ * @version v0.3.0
  * @link https://github.com/RoundingWellOS/backbone.eventrouter
  * @license MIT
  */
-(function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('underscore'), require('backbone'), require('backbone.radio')) : typeof define === 'function' && define.amd ? define(['underscore', 'backbone', 'backbone.radio'], factory) : global.Backbone.EventRouter = factory(global._, global.Backbone, global.Radio);
-})(this, function (_, Backbone, Radio) {
-  'use strict';
 
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('underscore'), require('backbone'), require('backbone.radio')) :
+  typeof define === 'function' && define.amd ? define(['underscore', 'backbone', 'backbone.radio'], factory) :
+  (global.Backbone = global.Backbone || {}, global.Backbone.EventRouter = factory(global._,global.Backbone,global.Radio));
+}(this, function (_,Backbone,backbone_radio) { 'use strict';
+
+  _ = 'default' in _ ? _['default'] : _;
+  Backbone = 'default' in Backbone ? Backbone['default'] : Backbone;
+
+  // eslint-disable-line
+
+  /**
+   * Backbone.Router coupled with a Backbone.Radio Channel.
+   *
+   * @public
+   * @class EventRouter
+   * @memberOf Backbone
+   */
   var EventRouter = Backbone.EventRouter = Backbone.Router.extend({
 
     /**
@@ -130,10 +144,9 @@
       }
 
       var wrappedCallback = _.bind(function () {
-
         var args = _.drop(arguments, 0);
 
-        //trigger before: events that match currently triggered events
+        // Trigger before: events that match currently triggered events
         this.trigger('before:route', name, args);
         this.trigger.apply(this, ['before:route:' + name].concat(args));
 
@@ -282,8 +295,8 @@
     }
   });
 
-  var backbone_eventrouter = EventRouter;
+  return EventRouter;
 
-  return backbone_eventrouter;
-});
-//# sourceMappingURL=./backbone.eventrouter.js.map
+}));
+
+//# sourceMappingURL=backbone.eventrouter.js.map

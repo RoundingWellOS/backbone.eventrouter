@@ -1,3 +1,8 @@
+#### v0.3.0
+
+* Updated tooling to babel 6
+* Updated dependencies and made them peers
+
 #### v0.2.0
 
 * Test Coverage 100%
