@@ -19,19 +19,17 @@ const EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    * @param {Boolean} [options.routeTriggers]
    */
   constructor: function(options) {
-    options = _.extend({}, options);
+    _.extend(this, _.pick(options, ['channelName', 'routeTriggers']));
+
+    this._ch = Backbone.Radio.channel(_.result(this, 'channelName'));
+
+    this.listenTo(this._ch, 'all', this.navigateFromEvent);
 
     // Backbone.Router routes are added first
     // Routes can be added after the triggerRoutes with the Backbone.Router API
     Backbone.Router.apply(this, arguments);
 
-    _.extend(this, _.pick(options, ['channelName', 'routeTriggers']));
-
-    this._ch = Backbone.Radio.channel(_.result(this, 'channelName'));
-
     this._initRoutes();
-
-    this.listenTo(this._ch, 'all', this.navigateFromEvent);
   },
 
   /**
