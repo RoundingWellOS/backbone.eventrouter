@@ -1,6 +1,6 @@
 {
   "name": "backbone.eventrouter",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "A highly opinionated, simplistic Backbone.Router coupled with a Backbone.Radio.Channel",
   "main": "./dist/backbone.eventrouter.js",
   "repository": {
