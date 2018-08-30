@@ -1,6 +1,6 @@
 /**
  * backbone.eventrouter - A highly opinionated, simplistic Backbone.Router coupled with a Backbone.Radio.Channel
- * @version v0.3.0
+ * @version v1.0.0
  * @link https://github.com/RoundingWellOS/backbone.eventrouter
  * @license MIT
  */
@@ -15,6 +15,9 @@
   Backbone = 'default' in Backbone ? Backbone['default'] : Backbone;
 
   // eslint-disable-line
+
+  // https://github.com/jashkenas/backbone/blob/1.2.1/backbone.js#L1425
+  var namedParamRegex = /(\(\?)?:\w+/;
 
   /**
    * Backbone.Router coupled with a Backbone.Radio Channel.
@@ -33,20 +36,19 @@
      * @param {Boolean} [options.routeTriggers]
      */
     constructor: function constructor(options) {
-      options = _.extend({}, options);
+      _.extend(this, _.pick(options, ['channelName', 'routeTriggers']));
+
+      this._ch = Backbone.Radio.channel(_.result(this, 'channelName'));
+
+      this.listenTo(this._ch, 'all', this.navigateFromEvent);
 
       // Backbone.Router routes are added first
       // Routes can be added after the triggerRoutes with the Backbone.Router API
       Backbone.Router.apply(this, arguments);
 
-      _.extend(this, _.pick(options, ['channelName', 'routeTriggers']));
-
-      this._ch = Backbone.Radio.channel(_.result(this, 'channelName'));
-
       this._initRoutes();
-
-      this.listenTo(this._ch, 'all', this.navigateFromEvent);
     },
+
 
     /**
      * The Radio Channel name.
@@ -68,6 +70,7 @@
       return this._ch;
     },
 
+
     /**
      * For each routeTrigger it adds a route to Backbone.Router
      *
@@ -76,10 +79,11 @@
      * @memberOf EventRouter
      */
     _initRoutes: function _initRoutes() {
-      this._routeTriggers = _.result(this, 'routeTriggers') || {};
+      this._routeTriggers = _.result(this, 'routeTriggers', {});
 
       _.each(this._routeTriggers, this._addRouteTrigger, this);
     },
+
 
     /**
      * Adds a route(s) to Backbone.Router which on route triggers
@@ -100,6 +104,7 @@
       }, this);
     },
 
+
     /**
      * Adds a routeTrigger, and route(s) to Backbone.Router
      * which on route triggers the appropriate event.
@@ -118,6 +123,7 @@
       return this;
     },
 
+
     /**
      * Overrides `Backbone.Router.route()
      * Like Backbone.Router.Route but with before events
@@ -135,12 +141,10 @@
      * @returns {EventRouter}
      */
     route: function route(_route, name, callback) {
-      if (_.isFunction(name)) {
-        callback = name;
-        name = '';
-      }
-      if (!callback) {
-        callback = this[name];
+      var bbRoute = Backbone.Router.prototype.route;
+
+      if (_.isFunction(name) || !callback) {
+        return bbRoute.call(this, _route, name, callback);
       }
 
       var wrappedCallback = _.bind(function () {
@@ -155,8 +159,9 @@
         this._clearRouteTrigger();
       }, this);
 
-      return Backbone.Router.prototype.route.call(this, _route, name, wrappedCallback);
+      return bbRoute.call(this, _route, name, wrappedCallback);
     },
+
 
     /**
      * Stores the route name and route arguments on a stack
@@ -171,6 +176,7 @@
       this._routeArgs.push(args);
     },
 
+
     /**
      * Gets the top of the triggered route store stack
      *
@@ -183,6 +189,7 @@
       return _.last(this._routeArgs) || [];
     },
 
+
     /**
      * Pops the latests route triggered off of the store stack
      *
@@ -193,6 +200,7 @@
     _clearRouteTrigger: function _clearRouteTrigger() {
       this._routeArgs.pop();
     },
+
 
     /**
      * Checks to see if the current event being tests is the latest
@@ -212,6 +220,7 @@
 
       return arguments.length === _.union(arguments, this.currentRoute).length;
     },
+
 
     /**
      * Takes a event string and any arguments passed to that event
@@ -247,6 +256,7 @@
       return this.navigate(translatedRoute, { trigger: false });
     },
 
+
     /**
      * Get the default route string
      * Either the first of the array or the passed in event if singular
@@ -262,6 +272,7 @@
       return _.isArray(routes) ? routes[0] : routes;
     },
 
+
     /**
      * Finds the next name params (ie: :param) and replaces it with the arg
      *
@@ -273,11 +284,9 @@
      * @returns {String}
      */
     _replaceParam: function _replaceParam(route, arg) {
-      // https://github.com/jashkenas/backbone/blob/1.2.1/backbone.js#L1425
-      var namedParam = /(\(\?)?:\w+/;
-
-      return route.replace(namedParam, arg);
+      return route.replace(namedParamRegex, arg);
     },
+
 
     /**
      * Takes a route string and an array or arguments

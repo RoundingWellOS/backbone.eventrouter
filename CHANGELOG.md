@@ -1,3 +1,6 @@
+#### v1.0.0
+Updated dev deps to peer deps
+
 #### v0.3.0
 
 * Updated tooling to babel 6
