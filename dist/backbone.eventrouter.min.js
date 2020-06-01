@@ -1,6 +1,6 @@
 /**
  * backbone.eventrouter - A highly opinionated, simplistic Backbone.Router coupled with a Backbone.Radio.Channel
- * @version v1.0.0
+ * @version v1.0.1
  * @link https://github.com/RoundingWellOS/backbone.eventrouter
  * @license MIT
  */
