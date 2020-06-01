@@ -1,5 +1,9 @@
+#### v1.0.1
+* Updated underscore peer dependency
+* Updated babel-preset-es2015-rollup devDependency
+
 #### v1.0.0
-Updated dev deps to peer deps
+* Updated dev deps to peer deps
 
 #### v0.3.0
 
