@@ -64,7 +64,7 @@
     "rollup-plugin-node-resolve": "1.5.0",
     "sinon": "1.12.2",
     "sinon-chai": "2.7.0",
-    "underscore": "~1.9.1"
+    "underscore": "~1.12.1"
   },
   "babelBoilerplateOptions": {
     "entryFileName": "backbone.eventrouter",
