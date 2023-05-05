@@ -24,6 +24,8 @@ const EventRouter = Backbone.EventRouter = Backbone.Router.extend({
   constructor(options) {
     _.extend(this, _.pick(options, ['channelName', 'routeTriggers']));
 
+    this.cid = _.uniqueId('bber');
+
     this._ch = Backbone.Radio.channel(_.result(this, 'channelName'));
 
     this.listenTo(this._ch, 'all', this.navigateFromEvent);
@@ -125,7 +127,9 @@ const EventRouter = Backbone.EventRouter = Backbone.Router.extend({
     const bbRoute = Backbone.Router.prototype.route;
 
     if(_.isFunction(name) || !callback) {
-      return bbRoute.call(this, route, name, callback);
+      route = bbRoute.call(this, route, name, callback);
+      Backbone.history.handlers[0].cid = this.cid;
+      return route;
     }
 
     const wrappedCallback = _.bind(function() {
@@ -140,7 +144,9 @@ const EventRouter = Backbone.EventRouter = Backbone.Router.extend({
       this._clearRouteTrigger();
     }, this);
 
-    return bbRoute.call(this, route, name, wrappedCallback);
+    route = bbRoute.call(this, route, name, wrappedCallback);
+    Backbone.history.handlers[0].cid = this.cid;
+    return route;
   },
 
   /**
@@ -196,7 +202,7 @@ const EventRouter = Backbone.EventRouter = Backbone.Router.extend({
       return false;
     }
 
-    return (arguments.length === _.union(arguments, this.currentRoute).length);
+    return (arguments.length === _.union(arguments, currentRoute).length);
   },
 
   /**
@@ -275,7 +281,23 @@ const EventRouter = Backbone.EventRouter = Backbone.Router.extend({
    */
   translateRoute(route, eventArgs) {
     return _.reduce(eventArgs, this._replaceParam, route);
+  },
+
+  /**
+   * Destroys the eventrouter and removes any registered route handlers.
+   *
+   * @public
+   * @method destroy
+   * @memberOf EventRouter
+   * @returns {EventRouter}
+   */
+  destroy() {
+    Backbone.history.handlers = _.reject(Backbone.history.handlers, { cid: this.cid });
+    this.stopListening();
+    this.trigger('destroy', this);
+    return this;
   }
 });
 
 export default EventRouter;
+

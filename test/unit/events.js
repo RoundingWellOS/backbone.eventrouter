@@ -125,4 +125,55 @@ describe('Backbone.Eventrouter Events', function() {
       });
     });
   });
+
+  describe('when a router is destroyed', function() {
+    describe('when a route is removed', function() {
+      beforeEach(function() {
+        this.beforeRouteStub = this.sinon.stub();
+        this.routeStub = this.sinon.stub();
+        this.beforeRouteNameStub = this.sinon.stub();
+        this.routeNameStub = this.sinon.stub();
+
+        this.myEventRouter.on('before:route', this.beforeRouteStub);
+        this.myEventRouter.on('route', this.routeStub);
+        this.myEventRouter.on('before:route:testevent:bar', this.beforeRouteNameStub);
+        this.myEventRouter.on('route:testevent:bar', this.routeNameStub);
+
+        this.myEventRouter.addRouteTrigger('test/url/:foo', 'testevent:bar');
+        this.myEventRouter.destroy();
+        this.myEventRouter.navigate('test/url/baz', { trigger: true });
+      });
+
+      it('should not throw a before:route event', function() {
+        expect(this.beforeRouteStub).to.not.have.been.calledOnce;
+      });
+    });
+
+    describe('when a route is removed and added to a new router', function() {
+      beforeEach(function() {
+        this.beforeRouteStub = this.sinon.stub();
+        this.beforeRouteOtherStub = this.sinon.stub();
+
+        this.myEventRouter.on('before:route', this.beforeRouteStub);
+
+        this.myEventRouter.addRouteTrigger('test/url/:foo', 'testevent:bar');
+        this.myEventRouter.navigate('test/url/baz', { trigger: true });
+        this.myEventRouter.destroy();
+        this.myEventRouter.navigate('test/url/baz2', { trigger: true });
+
+        this.myOtherEventRouter = new Backbone.EventRouter();
+        this.myOtherEventRouter.on('before:route', this.beforeRouteOtherStub);
+        this.myOtherEventRouter.addRouteTrigger('test/url/:foo', 'testevent:bar');
+        this.myOtherEventRouter.navigate('test/url/baz3', { trigger: true });
+
+        it('should throw a before:route event', function() {
+          expect(this.beforeRouteStub).to.have.been.calledOnce;
+        });
+
+        it('should throw a before:route event', function() {
+          expect(this.beforeRouteOtherStub).to.have.been.calledOnce;
+        });
+      });
+    });
+  });
 });
