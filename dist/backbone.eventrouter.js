@@ -1,6 +1,6 @@
 /**
  * backbone.eventrouter - A highly opinionated, simplistic Backbone.Router coupled with a Backbone.Radio.Channel
- * @version v1.0.1
+ * @version v1.1.0
  * @link https://github.com/RoundingWellOS/backbone.eventrouter
  * @license MIT
  */
@@ -37,6 +37,8 @@
      */
     constructor: function constructor(options) {
       _.extend(this, _.pick(options, ['channelName', 'routeTriggers']));
+
+      this.cid = _.uniqueId('bber');
 
       this._ch = Backbone.Radio.channel(_.result(this, 'channelName'));
 
@@ -144,7 +146,9 @@
       var bbRoute = Backbone.Router.prototype.route;
 
       if (_.isFunction(name) || !callback) {
-        return bbRoute.call(this, _route, name, callback);
+        _route = bbRoute.call(this, _route, name, callback);
+        Backbone.history.handlers[0].cid = this.cid;
+        return _route;
       }
 
       var wrappedCallback = _.bind(function () {
@@ -159,7 +163,9 @@
         this._clearRouteTrigger();
       }, this);
 
-      return bbRoute.call(this, _route, name, wrappedCallback);
+      _route = bbRoute.call(this, _route, name, wrappedCallback);
+      Backbone.history.handlers[0].cid = this.cid;
+      return _route;
     },
 
 
@@ -218,7 +224,7 @@
         return false;
       }
 
-      return arguments.length === _.union(arguments, this.currentRoute).length;
+      return arguments.length === _.union(arguments, currentRoute).length;
     },
 
 
@@ -301,6 +307,22 @@
      */
     translateRoute: function translateRoute(route, eventArgs) {
       return _.reduce(eventArgs, this._replaceParam, route);
+    },
+
+
+    /**
+     * Destroys the eventrouter and removes any registered route handlers.
+     *
+     * @public
+     * @method destroy
+     * @memberOf EventRouter
+     * @returns {EventRouter}
+     */
+    destroy: function destroy() {
+      Backbone.history.handlers = _.reject(Backbone.history.handlers, { cid: this.cid });
+      this.stopListening();
+      this.trigger('destroy', this);
+      return this;
     }
   });
 
