@@ -1,3 +1,6 @@
+#### v1.1.0
+* Support destroying the eventrouter
+
 #### v1.0.1
 * Updated underscore peer dependency
 * Updated babel-preset-es2015-rollup devDependency
